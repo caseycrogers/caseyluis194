@@ -72,6 +72,8 @@ class SynthFourBar(Mechanism):
       
       kwargs['children'] = children
       kwargs['constraints'] = constraints
+
+      print A
     
     if type(B) is complex:
       self.B = (B.real, B.imag)
