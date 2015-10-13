@@ -1,7 +1,52 @@
 #!/usr/bin/python
 
 from digifab import *
+#from examples import disk_planar_body
 import numpy
+
+"""
+Original Points:
+
+B = -9.65+96.6j, D = -73.5-91.3j,
+P = (-100+44j, -110+21j, -114-1.5j, -113-23j, -110-41j)
+
+CALL:
+
+### THIS IS COOL - number 1
+def pattern(s, off):
+  tpl=[(-50 - 0j) * s, (-5 - 0j)*s, (-12 + 10j)*s, (-25+15j)*s, (-40+10j)*s]
+  for i in range(len(tpl)):
+    tpl[i] += off
+  return tpl
+
+sfb = SynthFourBar(B= 0+80j, D= 0+20j, P= pattern(0.5, 10+0j))
+sfb.show()
+###
+
+### THIS IS NOT COOL YET - number 2
+def pattern(s, off):
+  tpl=[(-75 - 0j) * s, (-5 - 0j)*s, (-15 + 10j)*s, (-45+20j)*s, (-60+10j)*s]
+  for i in range(len(tpl)):
+    tpl[i] += off
+  return tpl
+
+sfb = SynthFourBar(B= 0+80j, D= 0+40j, P= pattern(0.5, 10+0j))
+sfb.show()
+###
+
+### USEFUL STUFF -  getting the origin to subtract the holes ###
+### Luis will do this
+
+sfb.children[1][i].joints[j].pose[j]
+
+"""
+"""
+def pattern(s, off):
+  tpl=[(-100 - 0j) * s, (0 - 0j)*s, (-25 + 10j)*s, (-50+15j)*s, (-80+10j)*s ]
+  for i in range(len(tpl)):
+    tpl[i] += off
+  return tpl
+"""
 
 class SynthFourBar(Mechanism):
   def __init__(self, B = -9.65+96.6j, D = -73.5-91.3j,
@@ -72,8 +117,6 @@ class SynthFourBar(Mechanism):
       
       kwargs['children'] = children
       kwargs['constraints'] = constraints
-
-      print A
     
     if type(B) is complex:
       self.B = (B.real, B.imag)
@@ -134,3 +177,74 @@ class SynthFourBar(Mechanism):
         child.state[0] = state
     
     super(SynthFourBar, self).show(**kwargs)
+
+"""
+#ThIS IS UP AT THE BEGINNING#
+def pattern(s, off):
+  tpl=[(-50 - 0j) * s, (-5 - 0j)*s, (-12 + 10j)*s, (-25+15j)*s, (-40+10j)*s]
+  for i in range(len(tpl)):
+    tpl[i] += off
+  return tpl
+
+#THIS IS THE CLASS CALL#
+sfb = SynthFourBar(B= 0+80j, D= 0+20j, P= pattern(0.5, 10+0j))
+#sfb.show()
+"""
+
+
+"""
+def gen_laser_cuts(mechanism):
+  vec_list = [] # creating a list of vectors for translating a cylinder placed in the origin
+  poly_meshes = [] # a list for the polymeshes with the holes
+  pls_laser_cut = [] # a list for the polylines
+
+  #1st iteration on mechanism - build translation vectors from joints
+  for body in mechanism.elts:
+    vec_body=[] #per body builds a list
+    for i in range(len(body.joints)):
+      pose_origin = body.joints[i].pose[0] # getting the origin of each joint
+      vec_body.append(pts_to_vec([0,0,0], pose_origin))# calculating the vector between the origin and each joint, store in vec_body
+    vec_list.append(vec_body) #append each vec_body in vec_list
+
+  #2nd iteration on mechanism - subtracting for joints
+  for i in range(len(vec_list)):
+    for j in range(len(vec_list[i])):
+      tf_sub_cyl = sub_cyl.clone()
+      tf_sub_cyl *= translation_matrix(vec_list[i][j])
+      mechanism.elts[i][0][0] = mechanism.elts[i][0][0] - tf_sub_cyl
+    poly_meshes.append(mechanism.elts[i][0][0])
+
+  """
+  """
+  Previous version - save a dxf per arm
+  i = 0
+  for pm in poly_meshes:
+    pl= PolyLine(generator = solid.projection()(pm.get_generator()))
+    name= '%d.dxf'%(i)
+    pl.save(name)
+    i += 1
+  """
+  """
+
+  for pm in poly_meshes:
+    pls_laser_cut.append(PolyLine(generator = solid.projection()(pm.get_generator())))
+  
+
+  a_block = Block([Layer(name = 'A_arm', color = 'red')])
+  b_block = Block([Layer(name = 'B_arm', color = 'red')])
+  c_block = Block([Layer(name = 'C_arm', color = 'red')])
+  d_block = Block([Layer(name = 'D_arm', color = 'red')])
+
+  a_block['A_arm'] += pls_laser_cut[0]
+  b_block['B_arm'] += pls_laser_cut[1]
+  c_block['C_arm'] += pls_laser_cut[2]
+  d_block['D_arm'] += pls_laser_cut[3]
+
+  a_layout = Layout([a_block, b_block, c_block, d_block], size= (600,600)) 
+
+  #return poly_meshes #previous version save a dxf per arm
+  return a_layout.solved()
+
+gen_laser_cuts(p)[0].save('laser_cut.dxf')
+"""
+
