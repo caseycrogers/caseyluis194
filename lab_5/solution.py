@@ -261,7 +261,7 @@ gen_laser_cuts(bot_leg, name = 'robot_leg')
 grip_l_layout= gen_laser_cuts(grip_r, name = 'gripper_l_arm', plot_to_file = False) # Because it is just a mirror of grip_r 
 
 gen_laser_cuts(grip_r, name = 'gripper_r_arm', sheet = (1200,600), plot_to_file = False).augmented(base).augmented(grip_l_layout).solved(margin = 3.0)[0].save('gripper.dxf')
-
+ 
 # NOW CUT AND ASSEMBLE YOU LASY BASTARD #
 
 """
