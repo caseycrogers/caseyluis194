@@ -211,7 +211,7 @@ def gen_laser_cuts(a_mechanism, name ='cuts', sheet = (600,300), plot_to_file = 
 # PRODUCING GEOMETRY #
 # BELOW THE REAL CALLS #
 # 1ST CALL TO ROBOT LEG #
-# OTHER CALLS FOR EAH ARM OF THE GRIPPER #
+# OTHER CALLS FOR EACH ARM OF THE GRIPPER #
 
 robot_leg = SynthFourBar(B= 0+80j, D= 0+20j, P= pattern(0.5, 10+0j)) #the solution is robot_leg.children[1]
 gripper_r_arm = SynthFourBar(B = 35+18.52j, D = 84.15 + 52.93j, P= (100+237.1j, 76.95+244.45j, 53+250j, 28.6+253.3j, 4+254.73j)) #the solution is gripper_r_arm.children[0]
