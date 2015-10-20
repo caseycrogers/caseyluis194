@@ -39,6 +39,7 @@ def filter_three_joints (a_mechanism):
 			pass
 	return ternary_link
 
+"""
 def joint_coord (mechanism):
 	joints_coord=[]
 	bb_coord=[]
@@ -52,18 +53,17 @@ def joint_coord (mechanism):
 	width= numpy.linalg.norm(pts_to_vec(BBox_points[0],BBox_points[3]))
 	height= numpy.linalg.norm(pts_to_vec(BBox_points[0],BBox_points[1]))
 	
-	if width > height:
+	if width == height:
+		bb_coord.extend((BBox_points[0], BBox_points[2]))
+	elif width > height:
+		bb_square= Polyline(generator= solid.square(width)).simplified()
+	else:
+		pass
 
-
-
-	length= 
-
-
-
-
+	#length= 
 
 	return joints_coord, bb_coord
-
+"""
 
 
 # Applying the joint_coord function to robot_leg #
