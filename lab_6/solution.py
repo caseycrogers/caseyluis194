@@ -2,12 +2,29 @@
 
 from digifab import *
 from solution_lab5 import * #importing the SynthFourBar
+import numpy
+import solid
 
 # EDITED - Luis #
+# USEFULL THING #
+
+def pts_to_vec (pt_a, pt_b):
+  start = numpy.asarray(pt_a)
+  end = numpy.asarray(pt_b)
+  vec = end - start
+  return vec
+
+################
+
 # Importing a mechanism
 gripper_r_arm = SynthFourBar(B = 35+18.52j, D = 84.15 + 52.93j, P= (100+237.1j, 76.95+244.45j, 53+250j, 28.6+253.3j, 4+254.73j)) #the solution is gripper_r_arm.children[0]
+gripper_arm = gripper
+
+
 robot_leg = SynthFourBar(B= 0+80j, D= 0+20j, P= pattern(0.5, 10+0j)) #the solution is robot_leg.children[1]
 robot_leg = robot_leg.children[1]
+
+
 # Test
 
 # Selecting the ternary link #
@@ -24,11 +41,35 @@ def filter_three_joints (a_mechanism):
 
 def joint_coord (mechanism):
 	joints_coord=[]
+	bb_coord=[]
+	
 	ternary_body = filter_three_joints(mechanism)
 	ternary_joints = ternary_body.joints
 	for i in range(len(ternary_joints)):
 		joints_coord.append(ternary_joints[i].pose[0])
-	return joints_coord
+	
+	BBox_points= mechanism.boundingBox().points
+	width= numpy.linalg.norm(pts_to_vec(BBox_points[0],BBox_points[3]))
+	height= numpy.linalg.norm(pts_to_vec(BBox_points[0],BBox_points[1]))
+	
+	if width > height:
+
+
+
+	length= 
+
+
+
+
+
+	return joints_coord, bb_coord
+
+
+
+# Applying the joint_coord function to robot_leg #
+
+bot_leg_joints= joint_coord(robot_leg)
+
 
 def dumb_coordinates(cList, dim, bound0, bound1):
 	dim = dim + 1
