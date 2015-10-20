@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from digifab import *
-from solution_lab5 import * #importing the SynthFourBar
+#from solution_lab5 import * #importing the SynthFourBar
 import numpy
 import solid
 
@@ -15,14 +15,14 @@ def pts_to_vec (pt_a, pt_b):
   return vec
 
 ################
-
+"""
 # Importing a mechanism
 gripper_r_arm = SynthFourBar(B = 35+18.52j, D = 84.15 + 52.93j, P= (100+237.1j, 76.95+244.45j, 53+250j, 28.6+253.3j, 4+254.73j)) #the solution is gripper_r_arm.children[0]
 gripper_arm = gripper
 
 
 robot_leg = SynthFourBar(B= 0+80j, D= 0+20j, P= pattern(0.5, 10+0j)) #the solution is robot_leg.children[1]
-robot_leg = robot_leg.children[1]
+robot_leg = robot_leg.children[1]"""
 
 
 # Test
@@ -68,20 +68,21 @@ def joint_coord (mechanism):
 
 # Applying the joint_coord function to robot_leg #
 
-bot_leg_joints= joint_coord(robot_leg)
+#bot_leg_joints= joint_coord(robot_leg)
 
 
 def dumb_coordinates(cList, dim, bound0, bound1):
 	ret = []
 	dim = dim + 1
 	for c in cList:
-		gX = numpy.floor( [(c[0]-bound0[0])/(bound1[1]-bound0[0])*dim] )[0]
-		gY = numpy.floor( [(c[1]-bound0[1])/(bound1[1]-bound0[1])*dim] )[0]
-		ret.append(dim*(gx + 1) + (dim-gY))
+		gX = numpy.round( (c[0]-bound0[0])/(bound1[1]-bound0[0])*dim )
+		gY = numpy.round( (c[1]-bound0[1])/(bound1[1]-bound0[1])*dim ) 
+		print str(gX) + ", " + str(gY)
+		ret.append((int) (dim*gX + (dim-gY)))
 	return ret
 
 
 if __name__ == '__main__':
-  p = PolyLine(filename='ternary_link_020.png')
-  p.show()
-  print dumb_coordinates([(0,0), (10,10)], 3, (0,0), (10,10))
+	print dumb_coordinates([(6.0,6.0), (10.0,10.0)], 3, (0.0,0.0), (10.0,10.0))
+	#p = PolyLine(filename='ternary_link_020.png')
+	#p.show()
