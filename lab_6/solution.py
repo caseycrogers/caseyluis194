@@ -72,12 +72,16 @@ bot_leg_joints= joint_coord(robot_leg)
 
 
 def dumb_coordinates(cList, dim, bound0, bound1):
+	ret = []
 	dim = dim + 1
 	for c in cList:
-		gX = (c[0]-bound0[0])/(bound1[1]-bound0[0])*dim
-		gY = (c[1]-bound0[1])/(bound1[1]-bound0[1])*dim
-		
+		gX = numpy.floor( [(c[0]-bound0[0])/(bound1[1]-bound0[0])*dim] )[0]
+		gY = numpy.floor( [(c[1]-bound0[1])/(bound1[1]-bound0[1])*dim] )[0]
+		ret.append(dim*(gx + 1) + (dim-gY))
+	return ret
+
 
 if __name__ == '__main__':
   p = PolyLine(filename='ternary_link_020.png')
   p.show()
+  print dumb_coordinates([(0,0), (10,10)], 3, (0,0), (10,10))
