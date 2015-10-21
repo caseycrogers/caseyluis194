@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from digifab import *
-from solution_lab5 import * #importing the SynthFourBar
+from solution_lab5 import * #importing the SynthFourBar class
 import numpy
 import solid
 
@@ -17,9 +17,9 @@ def pts_to_vec (pt_a, pt_b):
 
 ###################################
 
-# IMPORTING A MECHANISM #
+# IMPORTING MECHANISMS #
 gripper_r_arm = SynthFourBar(B = 35+18.52j, D = 84.15 + 52.93j, P= (100+237.1j, 76.95+244.45j, 53+250j, 28.6+253.3j, 4+254.73j)) #the solution is gripper_r_arm.children[0]
-gripper_arm = gripper
+gripper_arm = gripper_r_arm.children[0]
 
 robot_leg = SynthFourBar(B= 0+80j, D= 0+20j, P= pattern(0.5, 10+0j)) #the solution is robot_leg.children[1]
 robot_leg = robot_leg.children[1]
@@ -44,7 +44,7 @@ def filter_three_joints (a_mechanism):
 
 
 # GETTING JOINT COORDINATES AND MODIFIED BOUNDING BOX (always a square for simplification issues) CORNER COORDINATES #
-def joint_coord (mechanism):
+def joints_bb_coord (mechanism):
 	joints_coord=[]
 	bb_coord=[]
 	origin = numpy.array([0,0,0])
@@ -58,8 +58,8 @@ def joint_coord (mechanism):
 	BBox_points= BBox.points
 	BBox_point0 = numpy.append(BBox_points[0], [0]) #numpy append to add a z coord
 
-	width= numpy.linalg.norm(pts_to_vec(BBox_points[0],BBox_points[2]))
-	height= numpy.linalg.norm(pts_to_vec(BBox_points[0],BBox_points[1]))
+	width = numpy.linalg.norm(pts_to_vec(BBox_points[0],BBox_points[2]))
+	height = numpy.linalg.norm(pts_to_vec(BBox_points[0],BBox_points[1]))
 	
 	if width == height:
 		bb_square = BBox
@@ -77,23 +77,37 @@ def joint_coord (mechanism):
 	# For the sake of clarity transforming the arrays of bb_square_points to tuplles #
 	# In this way the output of the function would be two lists of tupples #
 
-	bb_pts_tpl= (map (tuple, bb_square_points))
+	bb_pts_tpl = (map (tuple, bb_square_points))
 
 	return joints_coord, bb_pts_tpl
 
 ###################################
 
-# Applying the joint_coord function to robot_leg #
+# APPLYING THE JOINT COORD TO MECHANISMS#
 
-bot_leg_joints= joint_coord(robot_leg)
+bot_leg_joints_bb = joints_bb_coord(robot_leg)
+gripper_joints_bb = joints_bb_coord(gripper_arm) 
 
+###################################
+
+# EDITED - Luis ###################
+
+
+# EDITED - Casey #
+
+# Transforming the coordinate system #
 
 def dumb_coordinates(cList, dim, bound0, bound1):
-	dim = dim + 1
-	for c in cList:
-		gX = (c[0]-bound0[0])/(bound1[1]-bound0[0])*dim
-		gY = (c[1]-bound0[1])/(bound1[1]-bound0[1])*dim
-		
+ 	ret = []
+ 	dim = dim + 1
+ 	for c in cList:
+ 		gX = numpy.floor( [(c[0]-bound0[0])/(bound1[1]-bound0[0])*dim] )[0]
+ 		gY = numpy.floor( [(c[1]-bound0[1])/(bound1[1]-bound0[1])*dim] )[0]
+ 		ret.append(dim*(gx + 1) + (dim-gY))
+ 	return ret
+
+# EDITED - Casey ##################
+
 
 if __name__ == '__main__':
   p = PolyLine(filename='ternary_link_020.png')
