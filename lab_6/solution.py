@@ -116,7 +116,9 @@ def dummy_arm(name):
 
 # Transforming the coordinate system #
 
-def dumb_coordinates(cList, dim, bound0, bound1):
+def dumb_coordinates(cList, bounds, dim):
+  bound0 = bounds[0]
+  bound1 = bounds[1]
  	ret = []
  	dim = dim + 1
  	for c in cList:
@@ -130,6 +132,5 @@ def dumb_coordinates(cList, dim, bound0, bound1):
 if __name__ == '__main__':
   p = PolyLine(filename='ternary_link_020.png')
   p.show()
-
-bot_leg_joints_bb = joints_bb_coord(robot_leg)
-
+  bot_leg_joints_bb = joints_bb_coord(robot_leg)
+  print dumb_coordinates(bot_leg_joints_bb[0], bot_leg_joints_bb[1], 60)
