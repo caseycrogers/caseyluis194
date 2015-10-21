@@ -42,8 +42,8 @@ def filter_three_joints (a_mechanism):
 
 ###################################
 
-
 # GETTING JOINT COORDINATES AND MODIFIED BOUNDING BOX (always a square for simplification issues) CORNER COORDINATES #
+
 def joints_bb_coord (mechanism):
 	joints_coord=[]
 	bb_coord=[]
@@ -75,9 +75,9 @@ def joints_bb_coord (mechanism):
 	bb_square_points = [numpy.append(bb_square.points[0], [0]), numpy.append(bb_square.points[2], [0])] #numpy append to add a z coord - consistency
 
 	# For the sake of clarity transforming the arrays of bb_square_points to tuplles #
-	# In this way the output of the function would be two lists of tupples #
+	# In this way the output of the function would be always lists of tupples #
 
-	bb_pts_tpl = (map (tuple, bb_square_points))
+	bb_pts_tpl = map (tuple, bb_square_points)
 
 	return joints_coord, bb_pts_tpl
 
@@ -85,13 +85,32 @@ def joints_bb_coord (mechanism):
 
 # APPLYING THE JOINT COORD TO MECHANISMS#
 
-bot_leg_joints_bb = joints_bb_coord(robot_leg)
-gripper_joints_bb = joints_bb_coord(gripper_arm) 
+#gripper_joints_bb = joints_bb_coord(gripper_arm) 
 
 ###################################
 
 # EDITED - Luis ###################
 
+# MAKING THE OPTIMIZED POLILYNE A BODY #
+
+"""
+def making_a_body(pl, joints):
+	return Body (
+		joints= 
+		)
+
+def dummy_arm(name):
+  
+  return Body(
+    joints = [Joint(name='shoulder')],
+    layers = Layer(
+      PolyMesh(generator=solid.cube([30,10,3])),
+      name = 'print',
+      color = 'blue'
+    ),
+    name = name
+  )
+"""
 
 # EDITED - Casey #
 
@@ -108,7 +127,9 @@ def dumb_coordinates(cList, dim, bound0, bound1):
 
 # EDITED - Casey ##################
 
-
 if __name__ == '__main__':
   p = PolyLine(filename='ternary_link_020.png')
   p.show()
+
+bot_leg_joints_bb = joints_bb_coord(robot_leg)
+
