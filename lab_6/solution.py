@@ -96,7 +96,9 @@ def joints_bb_coord (mechanism):
 """
 def making_a_body(pl, joints):
 	return Body (
-		joints= 
+		joints= [Joint(name = 'joint_0')],
+		layers = Layer(
+			)
 		)
 
 def dummy_arm(name):
