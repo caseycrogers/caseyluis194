@@ -44,7 +44,6 @@ def filter_three_joints (a_mechanism):
 
 
 # GETTING JOINT COORDINATES AND MODIFIED BOUNDING BOX (always a square for simplification issues) CORNER COORDINATES #
-
 def joint_coord (mechanism):
 	joints_coord=[]
 	bb_coord=[]
@@ -73,7 +72,7 @@ def joint_coord (mechanism):
 		tr_vec = translation_matrix(pts_to_vec(origin, BBox_point0))
 		bb_square *= tr_vec
 
-	bb_square_points = [numpy.append(bb_square.points[0], [0]), numpy.append(bb_square.points[2], [0])] #numpy append to add a z coord - consistency issues
+	bb_square_points = [numpy.append(bb_square.points[0], [0]), numpy.append(bb_square.points[2], [0])] #numpy append to add a z coord - consistency
 
 	# For the sake of clarity transforming the arrays of bb_square_points to tuplles #
 	# In this way the output of the function would be two lists of tupples #
