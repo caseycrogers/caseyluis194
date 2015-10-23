@@ -21,7 +21,6 @@ def vectors_angle (vec_0, vec_1):
 # Helper function to be included in the connector class - Check with Casey #
 # Fixed #
 def height_connector(stick_diameter, axes):
-
   # Calculating the angles of all pair of axes in a connector
   axes_angles=[]
   prev = axes[-1]
@@ -53,8 +52,8 @@ class Stick(Body):
 
     self.length = length
     
-    if 'joints' not in kwargs.keys():
-      kwargs['joints'] = [ORIGIN_POSE, ((0,0,length),ORIGIN_POSE[1])]
+    #if 'joints' not in kwargs.keys():
+      #kwargs['joints'] = [ORIGIN_POSE, ((0,0,length),ORIGIN_POSE[1])]
     
     if 'layers' not in kwargs.keys():
       kwargs['layers'] = Layer(

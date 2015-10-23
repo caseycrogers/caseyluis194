@@ -14,7 +14,7 @@ THAT FILE IN DIGIFAB'S EXAMPLE FOLDER
 # USEFULL STUFF #
 def pts_to_vec (pt_a, pt_b):
   start = numpy.asarray(pt_a)
-  end = numpy.asarray(pt_b)
+  end = numpy.asarray(pt_b)F
   vec = end - start
   return vec
 
