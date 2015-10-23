@@ -49,7 +49,7 @@ def findWorstPoint(cloud, edges):
 
 # Moves the point within radius sphere randomly
 def randomMove(pt, radius, bounds):
-  # make sure new point isn't too close to any other point
+  # make sure new point isn't too close to any other point - 15mm minimum
   # make sure new point isn't out of bounds
   # try ten times, if failure, return Null
   return original position of point
@@ -67,6 +67,24 @@ def vectors_angle (vec_0, vec_1):
   vec_0_norm = numpy.linalg.norm(vec_0)
   vec_1_norm = numpy.linalg.norm(vec_1)
   return math.acos(dot_product / (vec_0_norm * vec_1_norm))
+
+# Find the worst angle given a point # 
+#DONE
+def worst_angle (cloud, edges, p_i):
+  neighbors_pts = neighbors_pts(edges, p_i)
+  vector_lst = []
+  angle_lst = []
+  
+  for i in range(len(neighbors_pts)):
+    vector_lst.append(pts_to_vec(cloud[p_i], cloud[neighbors_pts[i]]))
+  
+  prev = vector_lst[-1]
+  for i in (range(len(vector_list))):
+    angle_lst.append(vectors_angle(axes[i], prev))
+    prev = vector_lst[i]
+
+  return min(angle_lst)
+
 
 # Find the points a given point is connected to
 def neighbors(edges, index):
