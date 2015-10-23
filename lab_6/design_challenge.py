@@ -7,6 +7,7 @@ import numpy
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial import Voronoi, Delaunay
+from cloud_optimize import cloud_optimize
 
 # EDIT -  Luis #
 # Helper function to calculate the diahedral angle between two angles #
@@ -247,6 +248,15 @@ class Sculpture(Layout):
       for edge in simplex_edges:
         if edge not in self.edges and edge[::-1] not in self.edges:
           self.edges.append(edge)
+
+    print self.edges
+    print self.cloud
+    print type(self.cloud)
+    print self.cloud[1]
+    print self.cloud[1][1]
+
+    cloud_optimize(self.cloud,self.edges)
+
 
     min_z = self.cloud[:,2].argsort()[0:3]
     base_pts = self.cloud[min_z,:]
