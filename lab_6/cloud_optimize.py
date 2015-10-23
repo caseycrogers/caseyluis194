@@ -13,17 +13,32 @@ optimize(cloud, edges):
 
   # finish
 
-
   i = 0
   while (i < 10):
-    hBefore = h(cloud, edges)
     i += 1
+
+    before = h(cloud, edges)
     worstPT = findWorstPoint(cloud, edges, bounds)
     originalPos = randomMove(worstPT, radius)
-  return false
 
-# Returns a number for goodness of fit, higher = better
-h(cloud, edges):
+    if not originalPos:
+      return false
+
+    after = hCloud(cloud,edges)
+    if after > before:
+      return True
+    else:
+      cloud[worstPTI] = originalPos
+      return False
+
+  return False
+
+# Returns a number for goodness of fit given a point, higher = better
+hPoint(cloud, edges, index):
+  return number
+
+# Returns a number for goodness of fit for the cloud, higher = better
+hCloud(cloud, edges):
   return number
 
 # Finds the point with the most acute diahedral angle
