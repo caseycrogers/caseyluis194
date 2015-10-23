@@ -2,6 +2,8 @@ from digifab import *
 import math
 import numpy
 
+
+
 def cloud_optimize(cloud, edges):
   while(optimize(cloud, edges)):
     pass
@@ -23,14 +25,13 @@ def optimize(cloud, edges):
     originalPos = randomMove(worstPT, radius)
 
     if not originalPos:
-      return false
+      return False
 
     after = hCloud(cloud,edges)
     if after > before:
       return True
     else:
       cloud[worstPTI] = originalPos
-      return False
 
   return False
 
@@ -42,15 +43,12 @@ def hPoint(cloud, edges, index):
 # Returns a number for goodness of fit for the cloud, higher = better
 # DONE
 def hCloud(cloud, edges):
-  worst = None
+  worst = 0
 
   for i in range(len(cloud)):
     h = hPoint(cloud, edges, i)
 
-    if worst == None:
-      worst = h
-    else:
-      worst = min(h, worst)
+    worst += h
 
   return worst
 
