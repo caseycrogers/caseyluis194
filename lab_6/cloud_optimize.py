@@ -53,6 +53,18 @@ randomMove(pt, radius, bounds):
   # try ten times, if failure, return Null
   return original position of point
 
-# Find the diahedral angle given two vectors
+# Vector constructor #
+def pts_to_vec (pt_a, pt_b):
+  start = numpy.asarray(pt_a)
+  end = numpy.asarray(pt_b)
+  vec = end - start
+  return vec
+
+# Find the diahedral angle given two vectors #
+def vectors_angle (vec_0, vec_1):
+  dot_product = numpy.dot(vec_0, vec_1)
+  vec_0_norm = numpy.linalg.norm(vec_0)
+  vec_1_norm = numpy.linalg.norm(vec_1)
+  return math.acos(dot_product / (vec_0_norm * vec_1_norm))
 
 # Find the worst diahedral angle in a point
