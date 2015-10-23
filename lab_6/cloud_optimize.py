@@ -2,6 +2,8 @@ from digifab import *
 import math
 import numpy
 
+# Writing bounds #
+bounds= numpy.asarray([[0,0,0],[150,150,150]])
 
 
 def cloud_optimize(cloud, edges):
@@ -22,7 +24,7 @@ def optimize(cloud, edges):
 
     before = h(cloud, edges)
     worstPT = findWorstPoint(cloud, edges, bounds)
-    originalPos = randomMove(worstPT, radius)
+    originalPos = randomMove(cloud, worstPT, radius, bounds)
 
     if not originalPos:
       return False
@@ -72,11 +74,35 @@ def findWorstPoint(cloud, edges):
 
 
 # Moves the point within radius sphere randomly
-def randomMove(pt, radius, bounds):
-  # make sure new point isn't too close to any other point - 15mm minimum
-  # make sure new point isn't out of bounds
-  # try ten times, if failure, return Null
-  return original position of point
+# DONE
+def randomMove(cloud, index, radius, bounds):
+  
+  rand_vec = numpy.random.uniform(0.0,25.0,3) # just to give a specific arbitrary direction
+  rand_radius = numpy.random.uniform(0.0, radius, 1)[0]
+  rand_norm = numpy.array([rand_vec[0]/rand_radius, rand_vec[1]/rand_radius, rand_vec[2]/rand_radius]) # normalize the vector to radius distance
+  
+  # Moving the point #
+  mv_cloud = cloud[index].copy
+  mv_cloud += rand_norm
+
+  def dist(a,b):
+    return numpy.linalg.norm(pts_to_vec(a,b))
+
+  def off_bounds(pts,bds):
+    return (bds[0][0] <= pts[0] <= bds[1][0]) and (bds[0][1] <= pts[1] <= bds[1][1]) and (bds[0][2] <= pts[2] <= bds[1][2])   
+
+  t = 0
+  
+  while t < 10:
+    for i in range(len(cloud)):
+      if i != index and dist(mv_cloud,cloud[i]) > 15.0 and off_bounds(mv_cloud, bounds):
+        og = cloud[index].copy
+        cloud[i][0] = mv_cloud[0]
+        cloud[i][1] = mv_cloud[1]
+        cloud[i][2] = mv_cloud[2]
+        return og
+
+  return None
 
 # Vector constructor #
 # DONE
@@ -110,7 +136,6 @@ def worst_angle (cloud, edges, p_i):
     prev = vector_lst[i]
 
   return min(angle_lst)
-
 
 # Find the points a given point is connected to
 # DONE
