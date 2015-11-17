@@ -1,0 +1,17 @@
+#!/usr/bin/python
+
+from digifab import *
+from solution_lab5 import * #importing the SynthFourBar class
+import numpy
+import solid
+
+# USEFULL STUFF #
+
+origin = numpy.array([0,0,0])
+
+def pts_to_vec (pt_a, pt_b):
+  start = numpy.asarray(pt_a)
+  end = numpy.asarray(pt_b)
+  vec = end - start
+  return vec
+
