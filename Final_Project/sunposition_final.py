@@ -227,8 +227,28 @@ class Sun:
     def sun_dec (oblcorr, sunApplg):
       return math.degrees(math.asin(math.sin(math.radians(oblcorr)) * math.sin(math.radians(sunAppLong))))
 
-    self.sunDec = sun_dec(obliqCorr, sunAppLong
+    self.sunDec = sun_dec(obliqCorr, sunAppLong)
 
+    #Compute var y
+    def var_y(oblcorr):
+      return math.tan(math.radians(oblcorr/2.0)) * math.tan(math.radians(oblcorr/2.0))
+
+    varY = var_y(obliqCorr)
+
+    #Compute Equation of Time [minutes]
+    def eq_time(vari_y, gmlSun, eccOrbit, gmanom):
+      return 4 * math.degrees(vari_y * math.sin(2*math.radians(gmlSun)) - 2 * eccOrbit * math.sin(math.radians(gmanom)) +
+                                4 * eccOrbit * vari_y * math.sin(math.radians(gmanom)) * math.cos(2 * math.radians(gmlSun)) -
+                                  0.5 * vari_y * vari_y * math.sin(4 * math.radians(gmlSun)) -
+                                    1.25 * eccOrbit * eccOrbit * math.sin(2 * math.radians(gmanom)))
+
+    eqTime = eq_time(varY, gml_Sun, eccOrb, gma_Sun)
+
+    #Compute True Solar Time [minutes]
+    def True_Sun_time(frachour, eqT, longt, timeZone):
+      return ((frachour/24.0) * 1440 + eqT + 4 * longt - 60 * timeZone) % 1440
+
+    trueSolarTime = True_Sun_time (fracHour, eqTime, self.longitude_degrees, self.time_zone)  
 
 
     """  
