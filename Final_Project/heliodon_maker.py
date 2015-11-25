@@ -144,10 +144,37 @@ def heliodon(modelSize):
     False, True, spacer)
   a4 *= rotation_matrix(numpy.pi/2, [0,0,1])
   heliodon |= a4
+
   return heliodon
 
 heliodon = heliodon(400)
-heliodon.show()
+
+def table_maker(center=False):
+  if center== True:
+    table_top = PolyMesh(generator= solid.cube([500,500,10], center= True)).simplified()
+    table_support = PolyMesh(generator = solid.cube([100,100,400], center= True)).simplified()
+    table_support *= translation_matrix([100,100,-200])
+    table_bottom = table_top.clone()
+    table_bottom *= translation_matrix([0,0,-400])
+  else:
+    table_top = PolyMesh(generator= solid.cube([500,500,10], center= False)).simplified()
+    table_support = PolyMesh(generator = solid.cube([100,100,400], center= True)).simplified()
+    table_support *= translation_matrix([250,250,-200])
+    table_bottom = table_top.clone()
+    table_bottom *= translation_matrix([0,0,-400])
+  table_obj= table_top | table_support
+  table_obj |= table_bottom
+  return table_obj
+
+table = table_maker()
+
+L1 = Layer(heliodon, name= "helios")
+L2 = Layer(table, name="table", color='white')
+
+B1 = Block([L1, L2])
+
+B1.show(is_2d= False)
+
 """heliodon = fullArc(400 + 4*(width+spacer) + width, True, True)
 space = spacerMaker(400 + 4*(width+spacer) + width, False, True, spacer)
 heliodon |= space
