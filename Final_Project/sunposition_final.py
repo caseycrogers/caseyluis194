@@ -248,7 +248,23 @@ class Sun:
     def True_Sun_time(frachour, eqT, longt, timeZone):
       return ((frachour/24.0) * 1440 + eqT + 4 * longt - 60 * timeZone) % 1440
 
-    trueSolarTime = True_Sun_time (fracHour, eqTime, self.longitude_degrees, self.time_zone)  
+    trueSolarTime = True_Sun_time (fracHour, eqTime, self.longitude_degrees, self.time_zone)
+
+    #Compute Hour angle [degrees]
+    def Hour_angle(solartime):
+      if solartime / 4.0 < 0:
+        return solartime/4.0 + 180
+      else:
+        return solartime/4.0 - 180  
+
+    hourAngle = Hour_angle (trueSolarTime)
+
+    #Compute Solar Zenith
+    def Solar_Zenith (lat, sundec, hourangle):
+      return math.degrees(math.acos((math.sin(math.radians(lat))) * math.sin(math.radians(sundec)) + math.cos(math.radians(lat)) * \
+              math.cos(math.radians(sundec)) * math.cos(math.radians(hourangle)))) 
+
+
 
 
     """  
