@@ -49,7 +49,7 @@ class Sun:
       sunDec -> Sun Declination
       TC -> Time correction
       SHA -> Solar Hour Angle
-      Ãltitude -> Sun Altitude or Sun Elevation Angle
+      Altitude -> Sun Altitude or Sun Elevation Angle
       Zenith -> Sun Zenith Angle
   Methods:
     SunPosition_Spherical -> returns the sun position in spherical coordinates as a list - [r, ]
@@ -57,9 +57,10 @@ class Sun:
     viz -> generates an openScad model for visualization of the sun position in a sky dome.
   """
 
-  def __init__(self, latitude, longitude, month, day, hours, minutes, r= 40.0, DST= False):
+  def __init__(self, latitude, longitude, time_zone, month, day, hours, minutes, r= 40.0, DST= False):
     self.latitude = latitude
     self.longitude = longitude
+    self.time_zone = time_zone
     self.month = month
     self.day = day
     self.hours = hours
@@ -67,21 +68,9 @@ class Sun:
     self.r = r
     self.DST = DST
 
-    def longitude_to_degrees(lg):
-      if type(lg) is str: 
-        return DCM_to_degrees(lg)
-      else:
-        return lg
-
-    self.longitude_degrees = longitude_to_degrees(self.longitude)
-
-    def latitude_to_degrees (lat):
-      if type(lat) is str:
-        return DCM_to_degrees(lat)
-      else:
-        return lat
-
-    self.latitude_degrees = latitude_to_degrees(self.latitude)
+    nDays_2009 = 40178 #we will assume for the sake of simplicity that we are at 2010
+    Julian_constant = 2415018.5 #if we are in 2010 this is the Julian Constant according with NOOA
+    
 
     def day_number(month, day):
       if month == 1 or "anuary" in str(month):
@@ -110,6 +99,24 @@ class Sun:
         day_num = (31+28+31+30+31+30+31+31+30+31+30) + day
       return day_num
 
+    dayNum = day_number(self.month, self.day)
+
+    def longitude_to_degrees(lg):
+      if type(lg) is str: 
+        return DCM_to_degrees(lg)
+      else:
+        return lg
+
+    self.longitude_degrees = longitude_to_degrees(self.longitude)
+
+    def latitude_to_degrees (lat):
+      if type(lat) is str:
+        return DCM_to_degrees(lat)
+      else:
+        return lat
+
+    self.latitude_degrees = latitude_to_degrees(self.latitude)
+
     """  
     def predicate_dst(self):
       "returns true if dst applies and false if not"
@@ -120,9 +127,9 @@ class Sun:
     def frac_hours(hour, minutes):
       return hour + (minutes/60.0)
 
-    self.fracHour = frac_hours(self.hours, self.minutes)
+    fracHour = frac_hours(self.hours, self.minutes)
 
-    # Step 1 - Calculate the fractional year in degrees
+    # Calculate the fractional year in degrees
     def frac_year(month, day, hour, minutes, frac_hour):
       day_num = day_number(self.month, self.day)
       if self.DST == True:
@@ -132,17 +139,135 @@ class Sun:
       frac_year = (360/365.25)*(day_num + (frac_hour/24.0))
       return frac_year
 
-    self.fracYear = frac_year(self.month, self.day, self.hours, self.minutes, self.fracHour)
+    fracYear = frac_year(self.month, self.day, self.hours, self.minutes, self.fracHour)
 
-    # Step 2 - Calculate the declination of the sun
-    def sun_dec(fracYear):
-      return (0.396372-22.91327*math.cos(math.radians(fracYear))+4.02543*math.sin(math.radians(fracYear))-
-                0.387205*math.cos(math.radians(2*fracYear))+
-                  0.051967*math.sin(math.radians(2*fracYear))-
-                    0.154527*math.cos(math.radians(3*fracYear))+0.084798*math.sin(math.radians(3*fracYear)))
+    #Calculate the Julian Day
+    def Julian_Day (day_num, fracH, timeZone):
+      return (nDays_2009+day_num) + Julian_constant + (fracH/24.0) - timeZone/24.0
 
-    self.sunDec = sun_dec(self.fracYear)
+    julianDay = Julian_Day(dayNum, fracHour, self.time_zone) 
 
+    #Calculate the Julian Century
+    def Julian_century(jd):
+      return (jd - 2451545)/36525.0
+
+    julianCentury = Julian_century(julianDay)
+
+    #Calculate the Geometric Mean Longitude of the Sun [deg - º]
+    def GMLong_Sun(jc):
+      return (280.46646 + jc *(36000.76983 + jc * 0.0003032))%360
+
+    gml_Sun = GMLong_Sun(julianCentury) 
+
+    #Calculate the Geometric Mean Anomaly of the Sun [deg - º]
+    def GMAnom_Sun(jc):
+      return 357.52911 + jc * (35999.05029 - 0.0001537 * jc)
+
+    gma_Sun = GMAnom_Sun(julianCentury)
+
+    #Calculate the Eccentric Earth Orbit
+    def Ecc_Orbit(jc):
+      return 0.016708634 - jc * (0.000042037 + 0.0000001267 * jc)
+
+    eccOrb = Ecc_Orbit(julianCentury)
+
+    #Calculate the Sun Eq of Ctr
+    def Sun_eq_Ctr(jc, geoanom_sun):
+      return math.sin(math.radians(geoanom_sun)) * (1.914602 - jc * (0.004817 + 0.000014 * jc)) + \
+                math.sin(math.radians(2*geoanom_sun)) * (0.019993 - 0.000101 * jc) + \
+                  math.sin(math.radians(3*geoanom_sun)) * 0.000289
+
+    sunEqCtr = Sun_eq_Ctr(julianCentury, gma_Sun)
+
+    #Calculate the Sun True Longitude [deg - º]
+    def Sun_true_long(gmlongSun, sunEq):
+      return gmlongSun + sunEq
+
+    sunTrueLong = Sun_true_long(gml_Sun, sunEqCtr)
+
+    #Calculate the Sun True Anomaly [deg - º]
+    def Sun_true_anom(geoanom_sun, sunEq):
+      return geoanom_sun + sunEq
+
+    sunTrueAnom = Sun_true_anom(gma_Sun, sunEqCtr)
+
+    #Calculate the Sun Rad Vector [AUs]
+    def Sun_rad_vec(ecc_orb, sunTanom):
+      return (1.000001018 * (1 - ecc_orb * ecc_orb)) / (1 + ecc_orb * math.cos(math.radians(sunTanom)))
+
+    sunRadVec = Sun_rad_vec (eccOrb, sunTrueAnom)
+
+    #Calculate the Sun App Long [deg - º]
+    def Sun_app_long (sunTlong, jc):
+      return sunTlong - 0.00569 - 0.00478 * math.sin(math.radians(125.04 - 1934.136 * jc))
+
+    sunAppLong = Sun_app_long (sunTrueLong, julianCentury)
+
+    #Calculate the Mean Obliq Ecliptic [deg - º]
+    def Mean_Obliq_Ecl (jc):
+      return 23+(26+((21.448 - jc * (46.815 + jc *(0.00059 - jc * 0.001813))))/60)/60.0
+
+    mObliqEcl = Mean_Obliq_Ecl(julianCentury)
+
+    #Calculate the Obliq Correction [deg - º]
+    def Obliq_corr (meanObliEc, jc):
+      return meanObliEc + 0.00256 * math.cos(math.radians(125.04 - 1934.136 * jc))
+
+    obliqCorr = Obliq_corr(mObliqEcl, julianCentury)
+
+    #Calculate Sun Rt Ascen [deg - º]
+    def Sun_rt_ascen (sunApplg, oblcorr):
+      a = math.cos(math.radians(sunApplg))
+      b = math.cos(math.radians(oblcorr)) * math.sin(math.radians(sunApplg))
+      return math.degrees(math.atan2(b, a)) #because in Excel they switch the order natively in ATAN2
+
+    sunRtAscen = Sun_rt_ascen(sunAppLong, obliqCorr)
+
+    #Calculate Sun Declination [deg - º]
+    def sun_dec (oblcorr, sunApplg):
+      return math.degrees(math.asin(math.sin(math.radians(oblcorr)) * math.sin(math.radians(sunAppLong))))
+
+    self.sunDec = sun_dec(obliqCorr, sunAppLong)
+
+    #Compute var y
+    def var_y(oblcorr):
+      return math.tan(math.radians(oblcorr/2.0)) * math.tan(math.radians(oblcorr/2.0))
+
+    varY = var_y(obliqCorr)
+
+    #Compute Equation of Time [minutes]
+    def eq_time(vari_y, gmlSun, eccOrbit, gmanom):
+      return 4 * math.degrees(vari_y * math.sin(2*math.radians(gmlSun)) - 2 * eccOrbit * math.sin(math.radians(gmanom)) +
+                                4 * eccOrbit * vari_y * math.sin(math.radians(gmanom)) * math.cos(2 * math.radians(gmlSun)) -
+                                  0.5 * vari_y * vari_y * math.sin(4 * math.radians(gmlSun)) -
+                                    1.25 * eccOrbit * eccOrbit * math.sin(2 * math.radians(gmanom)))
+
+    eqTime = eq_time(varY, gml_Sun, eccOrb, gma_Sun)
+
+    #Compute True Solar Time [minutes]
+    def True_Sun_time(frachour, eqT, longt, timeZone):
+      return ((frachour/24.0) * 1440 + eqT + 4 * longt - 60 * timeZone) % 1440
+
+    trueSolarTime = True_Sun_time (fracHour, eqTime, self.longitude_degrees, self.time_zone)
+
+    #Compute Hour angle [degrees]
+    def Hour_angle(solartime):
+      if solartime / 4.0 < 0:
+        return solartime/4.0 + 180
+      else:
+        return solartime/4.0 - 180  
+
+    hourAngle = Hour_angle (trueSolarTime)
+
+    #Compute Solar Zenith
+    def Solar_Zenith (lat, sundec, hourangle):
+      return math.degrees(math.acos((math.sin(math.radians(lat))) * math.sin(math.radians(sundec)) + math.cos(math.radians(lat)) * \
+              math.cos(math.radians(sundec)) * math.cos(math.radians(hourangle)))) 
+
+
+
+
+    """  
     # Step 3 - Time correction
     def time_correction(fracYear):
       return (0.004297+0.107029*math.cos(math.radians(fracYear))-
@@ -189,6 +314,8 @@ class Sun:
       return (math.degrees(math.acos(cos_az))) #correction to the algorithm in order to make az= 90 north - in this way we align north with the y-axis
 
     self.Azimuth = SunAzimuth(self.latitude_degrees, self.sunDec, self.Zenith)
+
+  """
 
   ### METHODS ###
   ###############

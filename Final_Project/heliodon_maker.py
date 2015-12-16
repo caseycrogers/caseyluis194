@@ -20,7 +20,7 @@ border = 3
 innerD = 3.5
 bolt = 3.5
 t = .2
-outerD = 2*(border+thick+innerD/2+2)
+outerD = 2*(2*border+thick+innerD/2+2)
 biggest = 400
 
 spacer = 3
@@ -30,11 +30,12 @@ hJoint takes in two booleans right and out and a name and creates
 a joint. The joint is saved as an .stl named "heliodon/joint<name>.stl".
 If right is True, the join goes on the right side of an arc. If right is
 False, the joint goes on left side (as seen from above an arc placed in the
-first quadrant). If outside is true, the joint attaches to another join on
+first quadrant). If outside is true, the joint attaches to another joint on
 the outer side of the arc. If outside is false, the joint attaches to another
 joint on the inner side.
 """
 def hJoint (right, out, name):
+  female = out
 
   # Create the outer cylinder
   j = solid.rotate(a = [-90, 0, 0])\
@@ -50,24 +51,39 @@ def hJoint (right, out, name):
   # Create the center hole
   c = solid.rotate(a = [90, 0, 0])\
     (solid.cylinder(r=innerD/2,center=True, h=2*width, segments=20))
-  c = solid.translate(v = [0, width/2, outerD/2])(c)
-  j = solid.difference()(j, c)
-
-  if (right and out) or (not right and not out):
-    off = -border
+  if female:
+    if (right and out) or (not right and not out):
+      off = -(width-6)
+    else:
+      off = width-6
+    c = solid.translate(v = [0, width/2+off, outerD/2])(c)
   else:
-    off = border
-  c = solid.rotate(a = [90, 0, 0])\
-    (solid.cylinder(r=(outerD)/2-border,center=True, h=width, segments = 20))
-  c = solid.translate(v = [0, width/2+off, outerD/2])(c)
+    c = solid.translate(v = [0, width/2, outerD/2])(c)
   j = solid.difference()(j, c)
 
+  if not female:
+    if (right and out) or (not right and not out):
+      off = -border
+    else:
+      off = border
+    c = solid.rotate(a = [90, 0, 0])\
+      (solid.cylinder(r=(outerD)/2-border,center=True, h=width, segments = 20))
+    c = solid.translate(v = [0, width/2+off, outerD/2])(c)
+    cube = solid.cube([outerD, width, 2*border+thick])
+    c = solid.difference()(c, \
+      solid.translate(v = [-outerD/2.0, 0, 0])(cube))
+    j = solid.difference()(j, c)
+
+  # Create bolt holes
   j = solid.difference()(j, 
-    solid.translate(v=[.75*outerD, width/2, 0])
+    solid.translate(v=[.65*outerD, width/2, 0])
+      (solid.cylinder(r=bolt/2, h = outerD, segments = 20)))
+  j = solid.difference()(j, 
+    solid.translate(v=[.85*outerD, width/2, 0])
       (solid.cylinder(r=bolt/2, h = outerD, segments = 20)))
 
   # Support bar
-  j = j + solid.translate(v = [-thick,0,border])(solid.cube([thick, width, thick+2*t]))
+  # j = j + solid.translate(v = [-thick,0,border])(solid.cube([thick, width, thick+2*t]))
 
   # Move and rotate
   j = solid.translate(v=[0, 0, -border])(j)
@@ -106,6 +122,10 @@ def arc(radius):
   PolyLine(generator = solid.projection()(a)).save("heliodon/a" + str(radius) + ".dxf")
   return PolyMesh(generator=a)
 
+"""
+fullArc creates an arc and two joints and then combines them together.
+radius determines the radius, outL determines 
+"""
 def fullArc(radius, outL, outR):
   jR = hJoint(True, outR, str(radius) + "R")
   jL = hJoint(False, outL, str(radius) + "L")
